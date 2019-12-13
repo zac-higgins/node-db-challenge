@@ -7,16 +7,17 @@ module.exports = {
     findResources,
     addProject,
     addTask,
-    addResource
+    addResource,
+    getAllResources
 }
 
 function addProject(project) {
     return db('projects')
         .insert(project, 'id')
-        .then(ids => {
-            const [id] = ids;
-            return findById(id);
-        });
+    // .then(ids => {
+    //     const [id] = ids;
+    //     return findById(id);
+    // });
 }
 
 function getProjects() {
@@ -48,24 +49,47 @@ function addTask(task) {
 }
 
 function findTasks(id) {
-    return db('tasks')
-        .where('project_id', id)
-        .orderBy('task_number')
-        .then(tasks => {
-            tasks.map(task => {
-                if (task.completed === 1) {
-                    task.completed = true
-                } else {
-                    task.completed = false
-                }
+    if (id) {
+        return db('tasks')
+            .select('tasks.id', 'tasks.task_number', 'tasks.description', 'tasks.notes', 'tasks.completed', 'projects.project_name as Project Name', 'projects.description as Project Description')
+            .join('projects', 'tasks.project_id', 'projects.id')
+            .where('project_id', id)
+            .orderBy('task_number')
+            .then(tasks => {
+                tasks.map(task => {
+                    if (task.completed === 1) {
+                        task.completed = true
+                    } else {
+                        task.completed = false
+                    }
+                })
+                return tasks;
             })
-            return tasks;
-        })
+    } else {
+        return db('tasks')
+            .select('tasks.id', 'tasks.task_number', 'tasks.description', 'tasks.notes', 'tasks.completed', 'projects.project_name as Project Name', 'projects.description as Project Description')
+            .join('projects', 'tasks.project_id', 'projects.id')
+            .orderBy('tasks.id')
+            .then(tasks => {
+                tasks.map(task => {
+                    if (task.completed === 1) {
+                        task.completed = true
+                    } else {
+                        task.completed = false
+                    }
+                })
+                return tasks;
+            })
+    }
 }
 
 function addResource(resource) {
     return db('resources')
         .insert(resource, 'id')
+}
+
+function getAllResources() {
+    return db('resources')
 }
 
 function findResources(id) {

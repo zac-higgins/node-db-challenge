@@ -6,7 +6,7 @@ const router = express.Router();
 router.get('/', (req, res) => {
     projects.getProjects()
         .then(projects => {
-            res.json(projects);
+            res.status(200).json(projects);
         })
         .catch(err => {
             res.status(500).json({ message: 'Failed to get projects' });
@@ -51,6 +51,71 @@ router.get('/:id/tasks', (req, res) => {
         });
 });
 
+router.get('/tasks', (req, res) => {
+    projects.findTasks()
+        .then(tasks => {
+            res.status(200).json(tasks)
+        })
+        .catch(err => {
+            res.status(500).json({ message: 'Failed to get tasks' });
+        });
+});
+
+router.get('/resources', (req, res) => {
+    projects.getAllResources()
+        .then(resources => {
+            res.status(200).json(resources)
+
+        })
+        .catch(err => {
+            res.status(500).json({ errorMessage: "unable to get resources" })
+        })
+})
+
 //----------POST Requests----------//
+
+router.post('/resources', (req, res) => {
+    // res.status(200).json({ message: "test success!", resource: req.body })
+    projects.addResource(req.body)
+        .then(() => {
+            projects.getAllResources()
+                .then(resources => {
+                    res.status(200).json(resources)
+
+                })
+        })
+        .catch(err => {
+            res.status(500).json({ errorMessage: "unable to add resource" })
+        })
+})
+
+router.post('/', (req, res) => {
+    projects.addProject(req.body)
+        .then(() => {
+            projects.getProjects()
+                .then(projects => {
+                    res.status(200).json(projects);
+                })
+                .catch(err => {
+                    res.status(500).json({ message: 'Failed to get projects' });
+                });
+        })
+})
+
+router.post('/tasks', (req, res) => {
+    projects.addTask(req.body)
+        .then(() => {
+            projects.findTasks()
+                .then(tasks => {
+                    res.status(200).json(tasks)
+                })
+                .catch(err => {
+                    res.status(500).json({ message: 'Failed to get tasks' });
+                });
+        })
+        .catch(err => {
+            res.status(500).json({ message: 'Failed to add the task' });
+        });
+})
 
 module.exports = router;
