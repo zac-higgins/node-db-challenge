@@ -20,7 +20,17 @@ function addProject(project) {
 }
 
 function getProjects() {
-    return db('projects');
+    return db('projects')
+        .then(projects => {
+            projects.map(project => {
+                if (project.completed === 1) {
+                    project.completed = true
+                } else {
+                    project.completed = false
+                }
+            })
+            return projects;
+        })
 }
 
 function findById(id) {
@@ -41,6 +51,16 @@ function findTasks(id) {
     return db('tasks')
         .where('project_id', id)
         .orderBy('task_number')
+        .then(tasks => {
+            tasks.map(task => {
+                if (task.completed === 1) {
+                    task.completed = true
+                } else {
+                    task.completed = false
+                }
+            })
+            return tasks;
+        })
 }
 
 function addResource(resource) {
